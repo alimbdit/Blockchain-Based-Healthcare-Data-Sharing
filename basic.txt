@@ -1,0 +1,83 @@
+================================================================================
+HEALTHCHAIN DAPP - COMMAND CHEATSHEET FOR SEPARATE TERMINALS
+================================================================================
+
+Ensure you are inside the project directory:
+cd "/home/md-abdul-alim/Documents/MSc/2nd_semester/BLOCK CHAIN/Assignment/p01"
+
+--------------------------------------------------------------------------------
+TERMINAL 1: START LOCAL BLOCKCHAIN NODE
+--------------------------------------------------------------------------------
+# Starts the local Ethereum JSON-RPC node on http://127.0.0.1:8545 with Chain ID 31337
+# Keep this terminal open and running!
+
+npx hardhat --config hardhat.config.cjs node
+
+
+--------------------------------------------------------------------------------
+TERMINAL 2: DEPLOY SMART CONTRACT & SEED DEMO DATA
+--------------------------------------------------------------------------------
+# Deploys HealthcareDataSharing.sol to the running local node
+# Seeds initial profiles (Alice, Bob, Dr. Smith, Dr. Patel, Metro Hospital)
+# Generates src/contracts/contractData.json for the frontend
+
+npx hardhat --config hardhat.config.cjs run scripts/deploy.js --network localhost
+
+
+--------------------------------------------------------------------------------
+TERMINAL 3: START FRONTEND WEB APPLICATION (VITE + REACT)
+--------------------------------------------------------------------------------
+# Starts the frontend development server
+# Open browser at: http://localhost:5173
+
+npm run dev
+
+
+--------------------------------------------------------------------------------
+TERMINAL 4 (OPTIONAL): RUN TESTS & FULL PERFORMANCE BENCHMARK
+--------------------------------------------------------------------------------
+# Run the 14 automated unit tests verifying all assignment requirements:
+npm test
+
+# Run the CLI performance benchmark engine (measures gas, latencies, AES throughput, TPS):
+npm run benchmark
+
+# Build the production bundle:
+npm run build
+
+
+================================================================================
+METAMASK WALLET SETUP INSTRUCTIONS
+================================================================================
+1. Open your MetaMask browser extension.
+2. Click Network Selector (top-left) -> "Add network" -> "Add a network manually".
+3. Enter the network parameters:
+   - Network Name:      Hardhat Localhost
+   - New RPC URL:       http://127.0.0.1:8545
+   - Chain ID:          31337
+   - Currency Symbol:   ETH
+
+4. Import Pre-Funded Test Accounts (10,000 ETH each):
+   In MetaMask, click Account icon -> "Add account or hardware wallet" -> "Import account" -> Paste Private Key:
+
+   - Patient Alice:
+     0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+
+   - Dr. Alice Smith (Approved Physician):
+     0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6
+
+   - System Admin (Deployer):
+     0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+
+   - Patient Bob:
+     0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
+
+   - Dr. Sarah Patel (Pending Approval):
+     0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a
+
+   - Metropolitan General Hospital:
+     0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba
+
+* NOTE: You can also use the built-in "Persona Dropdown" in the top bar of http://localhost:5173 
+  to switch roles instantly without configuring MetaMask!
+================================================================================
