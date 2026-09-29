@@ -214,21 +214,47 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  padding: 0.4rem 0.8rem;
+  background: #1e293b;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 0.4rem 0.85rem;
   border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
+.persona-dropdown-select,
 .persona-selector select {
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
+  background: transparent !important;
+  border: none !important;
+  color: #38bdf8 !important; /* Vivid sky cyan for high visibility */
   font-family: var(--font-body);
   font-size: 0.875rem;
-  font-weight: 500;
-  outline: none;
+  font-weight: 600;
+  outline: none !important;
   cursor: pointer;
+  padding-right: 0.5rem;
+}
+
+/* Fix dropdown popup background & text on Chrome/Firefox/WebKit across all platforms */
+.persona-dropdown-select option,
+.persona-selector select option,
+select option {
+  background-color: #0f172a !important; /* Deep solid navy background */
+  color: #ffffff !important;           /* Crisp bright white text */
+  font-weight: 500;
+  padding: 10px 14px;
+}
+
+.persona-dropdown-select optgroup,
+.persona-selector select optgroup,
+select optgroup {
+  background-color: #090d16 !important;
+  color: #38bdf8 !important;
+  font-weight: 700;
+}
+
+select option:disabled {
+  color: #64748b !important;
+  background-color: #070a12 !important;
 }
 
 /* Navigation Tabs */

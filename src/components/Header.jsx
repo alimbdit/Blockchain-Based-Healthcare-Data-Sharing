@@ -47,10 +47,11 @@ export default function Header({
         <div className="header-actions">
           {/* Active Persona / Role Switcher */}
           <div className="persona-selector">
-            <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginRight: "0.25rem" }}>
+            <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginRight: "0.25rem" }}>
               Persona:
             </span>
             <select
+              className="persona-dropdown-select"
               value={selectedPersona}
               onChange={(e) => onSelectPersona(e.target.value)}
             >
