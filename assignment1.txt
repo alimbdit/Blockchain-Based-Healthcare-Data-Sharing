@@ -1,0 +1,58 @@
+Assignment 1: Blockchain-Based Healthcare Data Sharing
+
+The objective of this assignment is to design, develop and evaluate a blockchain-based decentralized application (DApp) that solves a real-world problem. Students are required to implement the system, deploy smart contracts, evaluate blockchain performance and present their work professionally.
+
+Students may use Agentic Coding Tools (e.g., OpenAI Codex, Claude Code, Cursor, Windsurf) to assist with coding, debugging, documentation and testing. However, students must fully understand their implementation and be able to explain every component during the presentation.
+
+Problem Statement:
+Healthcare organizations generate large volumes of sensitive patient information. Traditional healthcare information systems are often isolated, making secure data sharing difficult. Centralized storage increases the risk of data breaches, unauthorized access and single points of failure. Patients also have limited control over who can access their medical records.
+
+Blockchain technology combined with decentralized storage can provide secure, transparent, and auditable medical data sharing while allowing patients to control access to their healthcare records.
+
+Students are required to:
+1. Develop a blockchain-based healthcare record management system.
+2. Implement secure patient-controlled access.
+3. Store encrypted medical files.
+4. Record medical record ownership and permissions on blockchain.
+5. Maintain complete audit logs.
+6. Evaluate system performance, scalability, transaction cost and security etc.
+
+Minimum Functional Requirements:
+- Patient registration
+- Doctor registration
+- Hospital registration
+- Medical record upload
+- Record sharing
+- Permission granting
+- Permission revocation
+- Medical history
+- Audit log
+- Administrator dashboard
+
+Performance Evaluation (Students must calculate):
+- Smart contract deployment cost
+- Transaction cost
+- Gas consumption
+- Upload latency
+- Download latency
+- Permission grant latency
+- Permission revoke latency
+- Encryption, Decryption time
+- Throughput and CPU usage
+- Memory usage
+- Network bandwidth, Scalability analysis
+
+Important:
+Students must understand all generated code. During the presentation, students should be able to explain the system architecture, smart contracts, implementation details, and performance evaluation. Failure to explain the project may result in mark deductions.
+
+Final Submission Requirements:
+Student must submit:
+1. Assignment Report (Hard Copy): The report must not exceed 15 pages.
+2. A 10-minute demonstration video, including:
+   - Problem statement
+   - System architecture
+   - Technology stack
+   - System demonstration
+   - Smart contract overview
+   - Performance evaluation (gas cost, latency, throughput, etc.)
+   - Challenges and future improvements

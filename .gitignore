@@ -1,0 +1,7 @@
+node_modules
+cache
+artifacts
+dist
+.env
+*.log
+node_modules

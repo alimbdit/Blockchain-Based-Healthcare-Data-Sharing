@@ -1,0 +1,35 @@
+{
+  "name": "p01",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "compile": "hardhat --config hardhat.config.cjs compile",
+    "test": "hardhat --config hardhat.config.cjs test",
+    "chain": "hardhat --config hardhat.config.cjs node",
+    "deploy:local": "hardhat --config hardhat.config.cjs run scripts/deploy.js --network localhost",
+    "benchmark": "hardhat --config hardhat.config.cjs run scripts/benchmark.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "ethers": "^6.17.0",
+    "hardhat": "^2.29.1",
+    "vite": "^8.3.1"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.9.4",
+    "chart.js": "^4.5.1",
+    "lucide-react": "^1.48.0",
+    "react": "^19.3.0",
+    "react-chartjs-2": "^5.3.1",
+    "react-dom": "^19.3.0"
+  }
+}

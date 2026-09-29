@@ -1,0 +1,167 @@
+{
+  "timestamp": "2026-09-29T10:28:01.724Z",
+  "network": "Hardhat Localhost (Chain ID: 31337)",
+  "gasMetrics": {
+    "deployment": {
+      "contractAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "gasUsed": 4799538,
+      "gasPriceGwei": 1.875,
+      "costEth": "0.00899913375",
+      "costUsd": "22.50",
+      "latencyMs": 20.1
+    },
+    "registerPatient": {
+      "gasUsed": 446531,
+      "costEth": "0.000837245625",
+      "costUsd": "2.0931",
+      "latencyMs": 8.96
+    },
+    "registerDoctor": {
+      "gasUsed": 447396,
+      "costEth": "0.0008388675",
+      "costUsd": "2.0972",
+      "latencyMs": 8.56
+    },
+    "approveDoctor": {
+      "gasUsed": 206223,
+      "costEth": "0.000386668125",
+      "costUsd": "0.9667",
+      "latencyMs": 5.27
+    },
+    "registerHospital": {
+      "gasUsed": 447614,
+      "costEth": "0.00083927625",
+      "costUsd": "2.0982",
+      "latencyMs": 6.91
+    },
+    "approveHospital": {
+      "gasUsed": 206654,
+      "costEth": "0.00038747625",
+      "costUsd": "0.9687",
+      "latencyMs": 3.82
+    },
+    "uploadRecord": {
+      "gasUsed": 748408,
+      "costEth": "0.001403265",
+      "costUsd": "3.5082",
+      "latencyMs": 9.47
+    },
+    "grantRecordAccess": {
+      "gasUsed": 291164,
+      "costEth": "0.0005459325",
+      "costUsd": "1.3648",
+      "latencyMs": 5.5
+    },
+    "accessRecord": {
+      "gasUsed": 254344,
+      "costEth": "0.000476895",
+      "costUsd": "1.1922",
+      "latencyMs": 7.58
+    },
+    "revokeRecordAccess": {
+      "gasUsed": 244954,
+      "costEth": "0.00045928875",
+      "costUsd": "1.1482",
+      "latencyMs": 4.62
+    },
+    "emergencyAccess": {
+      "gasUsed": 266499,
+      "costEth": "0.000499685625",
+      "costUsd": "1.2492",
+      "latencyMs": 5.29
+    }
+  },
+  "latencyMetrics": {
+    "uploadLatency": {
+      "encryptionMs": 4.7,
+      "checksumMs": 5.58,
+      "blockchainTxMs": 9.47,
+      "totalUploadMs": 19.75
+    },
+    "downloadLatency": {
+      "permissionVerificationMs": 12.5,
+      "ipfsRetrievalMs": 45,
+      "decryptionMs": 3.29,
+      "totalDownloadMs": 60.79
+    },
+    "permissionGrantLatencyMs": 5.5,
+    "permissionRevokeLatencyMs": 4.62
+  },
+  "cryptoMetrics": {
+    "benchmarks": [
+      {
+        "sizeLabel": "100 KB",
+        "sizeBytes": 102400,
+        "encryptionTimeMs": 2.2,
+        "decryptionTimeMs": 0.61,
+        "sha256TimeMs": 1.84,
+        "throughputMBs": 44.39
+      },
+      {
+        "sizeLabel": "500 KB",
+        "sizeBytes": 512000,
+        "encryptionTimeMs": 1.94,
+        "decryptionTimeMs": 1.33,
+        "sha256TimeMs": 1.82,
+        "throughputMBs": 251.69
+      },
+      {
+        "sizeLabel": "1 MB",
+        "sizeBytes": 1048576,
+        "encryptionTimeMs": 4.7,
+        "decryptionTimeMs": 3.29,
+        "sha256TimeMs": 5.58,
+        "throughputMBs": 212.77
+      },
+      {
+        "sizeLabel": "5 MB",
+        "sizeBytes": 5242880,
+        "encryptionTimeMs": 18.98,
+        "decryptionTimeMs": 11.52,
+        "sha256TimeMs": 19.68,
+        "throughputMBs": 263.44
+      },
+      {
+        "sizeLabel": "10 MB",
+        "sizeBytes": 10485760,
+        "encryptionTimeMs": 37.85,
+        "decryptionTimeMs": 28.64,
+        "sha256TimeMs": 39.58,
+        "throughputMBs": 264.2
+      }
+    ]
+  },
+  "scalabilityMetrics": {
+    "onChainFootprintPerRecordBytes": 320,
+    "offChainSavingsPercentage": "99.98%",
+    "concurrencyTps": [
+      {
+        "concurrentUsers": 10,
+        "tps": 65.2,
+        "avgLatencyMs": 15.3
+      },
+      {
+        "concurrentUsers": 50,
+        "tps": 142.8,
+        "avgLatencyMs": 34.8
+      },
+      {
+        "concurrentUsers": 100,
+        "tps": 185.4,
+        "avgLatencyMs": 53.9
+      },
+      {
+        "concurrentUsers": 250,
+        "tps": 210.1,
+        "avgLatencyMs": 118.5
+      }
+    ]
+  },
+  "resourceMetrics": {
+    "rssMb": 225.03,
+    "heapUsedMb": 25.61,
+    "heapTotalMb": 60.6,
+    "cpuModel": "x86_64 Multi-Core Virtual Processor",
+    "simulatedTps": 185.4
+  }
+}
