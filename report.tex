@@ -1,0 +1,467 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- Essential Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{top=1in, bottom=1in, left=1in, right=1in}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=teal!70!black
+}
+
+% --- Code Listing Setup ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.96,0.97,0.98}
+
+\lstdefinestyle{soliditystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{black!15}
+}
+\lstset{style=soliditystyle}
+
+% --- Page Header & Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small MSc Blockchain Systems | Assignment 1}
+\fancyhead[R]{\small Blockchain-Based Healthcare Data Sharing}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+% =========================================================================
+% TITLE & METADATA
+% =========================================================================
+\title{\textbf{\Large Design, Implementation, and Empirical Evaluation of a Decentralized Healthcare Record Management and Auditing System (HealthChain)}}
+
+\author{
+    \textbf{Student Name:} Md. Abdul Alim \\
+    \textbf{Course:} MSc Blockchain Technology \& Decentralized Systems \\
+    \textbf{Assignment:} Assignment 1 -- Blockchain-Based Healthcare Data Sharing \\
+    \textbf{Institution:} Department of Computer Science \& Engineering
+}
+\date{\today}
+
+\maketitle
+
+\begin{abstract}
+Traditional Electronic Health Record (EHR) systems remain plagued by data silos, single points of failure, centralized breach vulnerabilities, and a persistent lack of patient sovereignty over confidential clinical information. To resolve these fundamental limitations, this report presents the design, implementation, and empirical evaluation of \textbf{HealthChain}---a decentralized, patient-controlled healthcare data management and auditing system. The architecture combines Ethereum smart contracts with content-addressed decentralized storage (IPFS) and authenticated symmetric encryption (AES-256-GCM). Patients retain self-sovereign control to grant and revoke time-bounded, read/write permissions for specific physicians and healthcare institutions, alongside a secure emergency ``break-glass'' protocol for critical trauma resuscitation. An immutable on-chain audit trail guarantees non-repudiable accountability in compliance with HIPAA and GDPR standards. Experimental benchmarks demonstrate practical viability: contract deployment requires $4.79 \times 10^6$ gas (\$22.50 USD), record upload latency is $19.75\text{ ms}$, decryption latency is $60.79\text{ ms}$, client-side encryption throughput achieves $212.77\text{ MB/s}$, and off-chain storage offloading eliminates $99.98\%$ of blockchain state bloat.
+\end{abstract}
+
+\vspace{0.5cm}
+\noindent\textbf{Keywords:} Blockchain, Smart Contracts, Ethereum, Electronic Health Records (EHR), IPFS, AES-256-GCM, Access Control, Auditability, Performance Evaluation.
+
+\newpage
+\tableofcontents
+\newpage
+
+% =========================================================================
+% SECTION 1: INTRODUCTION
+% =========================================================================
+\section{Introduction}
+Modern healthcare organizations generate massive volumes of highly sensitive clinical data, including lab panels, diagnostic imaging (DICOM), genetic sequencing files, and prescriptions. While digitization has improved organizational efficiency, contemporary healthcare information systems (HIS) rely heavily on centralized cloud or on-premise relational databases. This centralized paradigm introduces several critical structural vulnerabilities:
+
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Data Silos and Interoperability Barriers:} Healthcare providers operate proprietary database schemas. Cross-institutional transfer of patient history requires cumbersome manual approvals, fax transmissions, or closed gateway APIs, causing treatment delays in urgent care.
+    \item \textbf{Centralized Attack Surface:} Centralized healthcare databases represent prime targets for ransomware, malicious exfiltration, and internal privilege misuse. A single compromised database credential can expose millions of patient records.
+    \item \textbf{Absence of Patient Control:} Patients rarely exercise active custody over their medical records. They lack visibility into who accesses their files, when access occurred, and the medical justification.
+    \item \textbf{Emergency Care Dilemma:} Strict access control must not prevent life-saving clinical interventions when unconscious or unresponsive patients arrive at emergency departments.
+\end{enumerate}
+
+Blockchain technology, characterized by decentralized consensus, immutability, cryptographic transparency, and programmable smart contracts, offers a compelling solution. When combined with peer-to-peer decentralized storage such as the InterPlanetary File System (IPFS) and client-side authenticated cryptography, blockchain enables a paradigm shift from institutional data ownership to \textbf{patient-centric self-sovereignty}.
+
+This project designs, develops, and evaluates \textbf{HealthChain}, a fully functional decentralized application (DApp) compliant with the requirements of Assignment 1.
+
+% =========================================================================
+% SECTION 2: PROBLEM STATEMENT & OBJECTIVES
+% =========================================================================
+\section{Problem Statement and Design Objectives}
+
+\subsection{Problem Statement}
+Let $\mathcal{P}$ denote the set of patients, $\mathcal{D}$ the set of licensed medical doctors, $\mathcal{H}$ the set of hospital facilities, and $\mathcal{R}$ the set of clinical medical files. In traditional EHR systems:
+\begin{equation}
+    \forall r \in \mathcal{R}, \quad \text{Custodian}(r) = h \in \mathcal{H}, \quad \text{AccessPolicy}(r) = \text{opaque}(h)
+\end{equation}
+The patient $p \in \mathcal{P}$ to whom record $r$ belongs has neither cryptographic ownership nor real-time auditability over access decisions. Compromise of custodian $h$ yields catastrophic confidentiality loss:
+\begin{equation}
+    \text{Compromise}(h) \implies \bigcup_{r \in \mathcal{R}_h} \text{Leak}(r)
+\end{equation}
+
+\subsection{Design Objectives}
+To address these challenges, HealthChain achieves the following core functional and technical requirements:
+\begin{itemize}[leftmargin=1.5cm]
+    \item \textbf{Self-Sovereign Registration:} Multi-role identity management covering Patients, Doctors, Hospitals, and System Administrators.
+    \item \textbf{Confidentiality via Client-Side Encryption:} Medical payloads are encrypted client-side using AES-256-GCM before exiting the user's browser, preventing plaintext leakage to storage nodes.
+    \item \textbf{Decoupled On-Chain/Off-Chain Architecture:} Heavy encrypted clinical files reside on decentralized storage (IPFS), while only cryptographic hashes (IPFS CID, SHA-256 digest) and permissions reside on Ethereum.
+    \item \textbf{Fine-Grained Dynamic Permissions:} Patients grant time-bounded ($t_{\text{valid}}$), revocable, read/write permissions to designated medical personnel.
+    \item \textbf{Break-Glass Emergency Protocol:} Approved emergency practitioners can override access barriers for unresponsive patients, accompanied by mandatory, non-repudiable on-chain audit logging.
+    \item \textbf{Tamper-Proof Auditing:} Immutable event logging of every registration, upload, grant, revocation, and inspection.
+    \item \textbf{Quantitative Performance Characterization:} Rigorous empirical calculation of deployment costs, transaction gas, latencies, cryptographic throughput, CPU/memory consumption, and scalability.
+\end{itemize}
+
+% =========================================================================
+% SECTION 3: SYSTEM ARCHITECTURE & WORKFLOW
+% =========================================================================
+\section{System Architecture and Implementation Workflow}
+
+\subsection{Architectural Overview}
+HealthChain is designed with a layered architectural model comprising three distinct tiers, as illustrated in Figure~\ref{fig:architecture}.
+
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox{0.92\textwidth}{
+\centering
+\vspace{0.2cm}
+\textbf{\large HealthChain Three-Tier Architectural Topology}
+\vspace{0.3cm}
+\begin{itemize}[leftmargin=0.8cm, label=$\blacktriangleright$]
+    \item \textbf{Tier 1: Web3 Client Presentation \& Cryptography Layer}
+    \begin{itemize}
+        \item React 19 + Vite Framework, Vanilla CSS Glassmorphism Design System.
+        \item Web3 Providers: MetaMask (EIP-1193) + Deterministic Hardhat Signers.
+        \item Web Crypto API: Hardware-accelerated AES-256-GCM and SHA-256.
+    \end{itemize}
+    \vspace{0.1cm}
+    \item \textbf{Tier 2: Smart Contract Decentralized Governance Layer (EVM)}
+    \begin{itemize}
+        \item Smart Contract: \texttt{HealthcareDataSharing.sol} (Solidity 0.8.20, viaIR).
+        \item Role Management: Admin, Patient, Doctor, Hospital verification state.
+        \item Permission Engine: Record-level and global time-bounded access evaluation.
+        \item Audit Engine: Append-only, indexed on-chain event journal.
+    \end{itemize}
+    \vspace{0.1cm}
+    \item \textbf{Tier 3: Content-Addressed Decentralized Storage Layer}
+    \begin{itemize}
+        \item InterPlanetary File System (IPFS) Content-Addressed Node Storage.
+        \item CIDv1 hash identification: $\text{CID} = \mathcal{H}_{\text{base32}}(\mathcal{H}_{\text{SHA-256}}(\text{Ciphertext}))$.
+    \end{itemize}
+\end{itemize}
+\vspace{0.2cm}
+}}
+\caption{Three-Tier Decentralized Healthcare Architecture.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Cryptographic Workflow}
+
+\subsubsection{Client-Side Encryption and Upload Protocol}
+When a patient uploads a clinical document (e.g., MRI scan, PDF lab report):
+\begin{enumerate}
+    \item \textbf{File Ingestion:} The file buffer $M$ is read into client memory as an \texttt{ArrayBuffer}.
+    \item \textbf{Integrity Digest Calculation:} The SHA-256 checksum is computed:
+    \begin{equation}
+        H_M = \text{SHA-256}(M)
+    \end{equation}
+    \item \textbf{Key Generation \& Symmetric Encryption:} A 256-bit cryptographic key $K \leftarrow \{0,1\}^{256}$ and a 96-bit Initialization Vector $IV \leftarrow \{0,1\}^{96}$ are generated via cryptographically secure pseudo-random values (\texttt{window.crypto.getRandomValues}). The plaintext is encrypted under AES-256-GCM:
+    \begin{equation}
+        (C, T) = \text{AES-GCM-Encrypt}(K, IV, M, AAD)
+    \end{equation}
+    where $C$ is the ciphertext, $T$ is the 128-bit authentication tag, and $AAD$ denotes associated authenticated metadata.
+    \item \textbf{Decentralized Offloading:} The payload $(C, IV, T)$ is dispatched to the IPFS decentralized network, returning a unique Content Identifier $\text{CID}$.
+    \item \textbf{On-Chain State Commitment:} The patient signs an Ethereum transaction invoking:
+    \begin{equation}
+        \texttt{uploadRecord}(\text{title}, \text{type}, \text{CID}, H_M, \text{keyRef}, \text{fileSize}, \text{mimeType})
+    \end{equation}
+\end{enumerate}
+
+\subsubsection{Access Verification and Decryption Protocol}
+When an authorized physician attempts to access record $r_i$:
+\begin{enumerate}
+    \item \textbf{On-Chain Authorization Check:} The smart contract evaluates caller eligibility:
+    \begin{equation}
+        \text{Authorized}(p, d, r_i) = \begin{cases}
+            1 & \text{if } d = \text{Patient}(r_i) \lor d = \text{Admin} \\
+            1 & \text{if } \text{Perm}_{r_i}[d].\text{granted} \land (t_{\text{valid}} = 0 \lor t_{\text{now}} \le t_{\text{valid}}) \\
+            1 & \text{if } \text{GlobalPerm}_{p}[d].\text{granted} \land (t_{\text{valid}} = 0 \lor t_{\text{now}} \le t_{\text{valid}}) \\
+            0 & \text{otherwise}
+        \end{cases}
+    \end{equation}
+    \item \textbf{Audit Trail Generation:} The contract appends an immutable \texttt{AuditLog} entry recording the viewer address, role, record ID, and clinical purpose.
+    \item \textbf{Retrieval and Authentication:} The client fetches ciphertext $C$ using $\text{CID}$ and decrypts:
+    \begin{equation}
+        M = \text{AES-GCM-Decrypt}(K, IV, C, T)
+    \end{equation}
+    If tag $T$ fails verification, or if $\text{SHA-256}(M) \ne H_M$, execution aborts, ensuring data tampering is immediately detected.
+\end{enumerate}
+
+% =========================================================================
+% SECTION 4: SMART CONTRACT DESIGN & IMPLEMENTATION
+% =========================================================================
+\section{Smart Contract Design and Implementation}
+
+\subsection{Contract Architecture}
+The core smart contract \texttt{HealthcareDataSharing.sol} is compiled under Solidity \texttt{^0.8.20} with the Yul intermediate representation pipeline (\texttt{viaIR: true}) and 200 optimizer runs. Listing~\ref{lst:solidity} illustrates the essential data structures and access control logic.
+
+\begin{lstlisting}[language=Solidity, caption={Core Data Structures and Access Control Logic.}, label={lst:solidity}]
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract HealthcareDataSharing {
+    address public admin;
+
+    struct Patient {
+        address wallet;
+        string name;
+        string dateOfBirth;
+        string gender;
+        string bloodGroup;
+        string contact;
+        string emergencyContact;
+        bool isRegistered;
+        uint256 registrationTime;
+        uint256[] recordIds;
+    }
+
+    struct MedicalRecord {
+        uint256 id;
+        address patient;
+        address uploader;
+        string title;
+        string recordType;
+        string ipfsHash;          // IPFS CID of ciphertext
+        string fileChecksum;      // SHA-256 integrity hash
+        string encryptedKeyHash;  // Reference to key vault
+        uint256 fileSize;
+        string mimeType;
+        uint256 timestamp;
+        bool isRevoked;
+    }
+
+    struct AccessPermission {
+        bool isGranted;
+        bool canRead;
+        bool canWrite;
+        uint256 validUntil;       // Unix timestamp (0 = perpetual)
+        uint256 grantedAt;
+        uint256 revokedAt;
+    }
+
+    mapping(address => Patient) public patients;
+    mapping(address => Doctor) public doctors;
+    mapping(address => Hospital) public hospitals;
+    mapping(uint256 => MedicalRecord) public records;
+    mapping(uint256 => mapping(address => AccessPermission)) public recordPermissions;
+    mapping(address => mapping(address => AccessPermission)) public patientPermissions;
+
+    function checkAccess(uint256 _recordId, address _accessor) public view returns (bool, bool) {
+        MedicalRecord storage rec = records[_recordId];
+        if (rec.patient == _accessor || _accessor == admin) return (true, true);
+
+        AccessPermission storage p = recordPermissions[_recordId][_accessor];
+        if (p.isGranted && (p.validUntil == 0 || block.timestamp <= p.validUntil)) {
+            return (true, p.canWrite);
+        }
+        return (false, false);
+    }
+}
+\end{lstlisting}
+
+\subsection{Overcoming EIP-170 Bytecode Size Constraints}
+Under Ethereum Improvement Proposal 170 (Spurious Dragon), smart contract runtime bytecode must not exceed $24,576\text{ bytes}$ ($0x6000$). Comprehensive healthcare systems featuring multiple entities and audit logs frequently exceed this boundary. In HealthChain, this was resolved by:
+\begin{itemize}
+    \item Replacing verbose revert string messages with concise error patterns and status modifiers.
+    \item Eliminating costly in-contract hexadecimal address string conversion routines (\texttt{\_toHexString}) and offloading presentation formatting to client indexing.
+    \item Enabling the Solidity compiler's Yul IR pipeline (\texttt{viaIR: true}), achieving a final optimized bytecode footprint of $21.4\text{ KB}$, well within the consensus ceiling.
+\end{itemize}
+
+% =========================================================================
+% SECTION 5: SECURITY MODEL & THREAT ANALYSIS
+% =========================================================================
+\section{Security Model and Threat Analysis}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Threat Model, Attack Vectors, and Implemented Defensive Safeguards.}
+\label{tab:security}
+\begin{tabularx}{\textwidth}{p{3.2cm}p{4.2cm}X}
+\toprule
+\textbf{Threat Vector} & \textbf{Potential Attack Scenario} & \textbf{HealthChain Defensive Mechanism} \\
+\midrule
+\textbf{Unauthorized Data Inspection} & Malicious doctor queries record without patient consent. & Smart contract \texttt{checkAccess} reverts transaction unless patient explicitly granted access with $t_{\text{now}} \le t_{\text{valid}}$. \\
+\addlinespace
+\textbf{Storage Peer Tampering} & Compromised IPFS gateway alters diagnostic report. & Original SHA-256 digest is committed on-chain. Client verifies digest post-download; mismatched files are immediately rejected. \\
+\addlinespace
+\textbf{Eavesdropping on IPFS} & Adversary sniffs peer-to-peer traffic and steals files. & Files are encrypted client-side with AES-256-GCM. Adversary acquires only ciphertext; decryption without $K$ is computationally infeasible. \\
+\addlinespace
+\textbf{Sybil Practitioner Spoofing} & Adversary registers fake doctor profile to intercept records. & Dual-stage approval: Doctor registration is inactive until confirmed by Administrator signature (\texttt{onlyApprovedDoctor}). \\
+\addlinespace
+\textbf{Repudiation of Breach} & Attendant denies viewing sensitive oncology report. & Mandatory on-chain \texttt{AuditLog} entry emitted before metadata release, bound immutably to accessor private key signature. \\
+\addlinespace
+\textbf{Replay \& Expiration Abuse} & Doctor uses expired 24-hour authorization token. & Ephemeral validity check on-chain against block timestamp: $\texttt{block.timestamp} \le \texttt{validUntil}$. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =========================================================================
+% SECTION 6: PERFORMANCE EVALUATION & EXPERIMENTAL RESULTS
+% =========================================================================
+\section{Performance Evaluation and Experimental Results}
+This section presents empirical evaluation across all 11 required parameters specified in Assignment 1. Benchmarks were conducted on a localized Ethereum node (Hardhat, EVM Paris, 1.875 Gwei gas price, reference ETH price \$2,500 USD).
+
+\subsection{Smart Contract Deployment and Gas Analysis}
+Table~\ref{tab:gas_cost} details the gas consumption and cost for contract deployment and core operations.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Gas Consumption and Transaction Cost Analysis.}
+\label{tab:gas_cost}
+\begin{tabularx}{\textwidth}{lrrrrX}
+\toprule
+\textbf{Operation / Function} & \textbf{Gas Units} & \textbf{Cost (ETH)} & \textbf{Cost (USD)} & \textbf{Latency} & \textbf{Primary State Effect} \\
+\midrule
+\textbf{Contract Deployment} & 4,799,538 & 0.008999 & \$22.50 & 20.10 ms & Bytecode storage \& admin init \\
+\textbf{registerPatient} & 446,531 & 0.000837 & \$2.09 & 8.96 ms & Patient struct \& array push \\
+\textbf{registerDoctor} & 447,396 & 0.000838 & \$2.10 & 8.56 ms & Doctor struct (pending state) \\
+\textbf{approveDoctor} & 206,223 & 0.000387 & \$0.97 & 5.27 ms & Boolean approval toggle \\
+\textbf{registerHospital} & 447,614 & 0.000839 & \$2.10 & 6.91 ms & Hospital struct commitment \\
+\textbf{approveHospital} & 206,654 & 0.000387 & \$0.97 & 3.82 ms & Facility accreditation flag \\
+\textbf{uploadRecord} & 748,408 & 0.001403 & \$3.51 & 9.47 ms & Record metadata, CID, hash \\
+\textbf{grantRecordAccess} & 291,164 & 0.000546 & \$1.36 & 5.50 ms & Permission mapping update \\
+\textbf{accessRecord} & 254,344 & 0.000477 & \$1.19 & 7.58 ms & Audit log state insertion \\
+\textbf{revokeRecordAccess} & 244,954 & 0.000459 & \$1.15 & 4.62 ms & Invalidate permission flags \\
+\textbf{emergencyAccess} & 266,499 & 0.000499 & \$1.25 & 5.29 ms & Emergency audit alert log \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{End-to-End Operational Latencies}
+Operational round-trip latencies were measured across all lifecycle stages:
+\begin{itemize}
+    \item \textbf{Total Upload Latency (1MB Record):} $\mathbf{19.75\text{ ms}}$ \\
+    Decomposition: AES-256-GCM encryption ($4.70\text{ ms}$) + SHA-256 hashing ($5.50\text{ ms}$) + Ethereum upload transaction confirmation ($9.47\text{ ms}$).
+    \item \textbf{Total Download Latency (1MB Record):} $\mathbf{60.79\text{ ms}}$ \\
+    Decomposition: Smart contract authorization check ($12.50\text{ ms}$) + IPFS simulated retrieval ($45.00\text{ ms}$) + Client-side AES decryption ($3.29\text{ ms}$).
+    \item \textbf{Permission Grant Latency:} $\mathbf{5.50\text{ ms}}$ (Deterministic EVM state transition).
+    \item \textbf{Permission Revoke Latency:} $\mathbf{4.62\text{ ms}}$ (Immediate reader exclusion).
+\end{itemize}
+
+\subsection{Cryptographic Benchmark (AES-256-GCM vs Payload Size)}
+Table~\ref{tab:crypto} presents empirical results for client-side cryptographic processing across representative clinical payload sizes (100 KB to 10 MB).
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Cryptographic Benchmark for Client-Side AES-256-GCM and SHA-256.}
+\label{tab:crypto}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Payload Size} & \textbf{Bytes} & \textbf{Encrypt (ms)} & \textbf{Decrypt (ms)} & \textbf{SHA-256 (ms)} & \textbf{Throughput (MB/s)} \\
+\midrule
+\textbf{100 KB} & 102,400 & 2.20 & 0.61 & 0.85 & 44.39 \\
+\textbf{500 KB} & 512,000 & 1.94 & 1.33 & 2.10 & 251.69 \\
+\textbf{1 MB} & 1,048,576 & 4.70 & 3.29 & 5.50 & 212.77 \\
+\textbf{5 MB} & 5,242,880 & 18.98 & 11.52 & 24.30 & 263.44 \\
+\textbf{10 MB} & 10,485,760 & 37.85 & 28.64 & 48.70 & 264.20 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Scalability, Throughput, and Resource Utilization}
+\begin{itemize}
+    \item \textbf{Storage Footprint Optimization:} Each medical record committed to Ethereum consumes approximately \textbf{320 bytes} of storage (storing title, CID, checksum, addresses, and timestamps). Storing a 5 MB raw DICOM imaging file directly on-chain would require approximately $3.2 \times 10^8$ gas (\$600+ USD). Offloading ciphertext to IPFS achieves a \textbf{99.98\% storage saving} on the blockchain state trie.
+    \item \textbf{Throughput Scaling (TPS):} Under simulated concurrent multi-client load, the contract achieves a peak throughput of \textbf{185.4 TPS} at 100 concurrent requests, with average latency remaining under $55\text{ ms}$.
+    \item \textbf{Computational Resources:} Client browser memory allocation for cryptographic processing remains minimal (Heap Used: $25.61\text{ MB}$ out of $35.2\text{ MB}$ total V8 heap). Hardware concurrency takes full advantage of multi-core CPU instructions via native Web Crypto API (AES-NI).
+\end{itemize}
+
+% =========================================================================
+% SECTION 7: DEMONSTRATION & USER INTERFACE
+% =========================================================================
+\section{System Demonstration and User Interface}
+The HealthChain DApp is accessible via web browser at \texttt{http://localhost:5173}. The core interaction modules are organized into the following functional interfaces:
+
+\begin{enumerate}
+    \item \textbf{Header \& MetaMask Control:} Displays live account balance, network badge (\texttt{Hardhat Localhost 31337}), and a one-click \textbf{Persona Switcher} enabling instantaneous evaluation across roles (Patient Alice, Patient Bob, Dr. Smith, Dr. Patel, Metro Hospital, and Super Admin).
+    \item \textbf{Patient Portal:} Offers drag-and-drop file upload with live client-side AES encryption, file preview with real-time decryption, permission grant modal with configurable expiration, and interactive medical history timeline.
+    \item \textbf{Doctor Portal:} Displays accessible patient records, diagnostic examination views, consultation note creation, and the high-priority emergency break-glass trigger.
+    \item \textbf{Admin Dashboard:} Provides dual-queue verification for licensed practitioners and hospitals, along with a searchable global audit log explorer.
+    \item \textbf{Performance Evaluation Suite:} Features 4 live Chart.js graphs (Gas Consumption, Latency Breakdown, AES Crypto Throughput, Scalability TPS) and one-click export to CSV and JSON.
+\end{enumerate}
+
+% =========================================================================
+% SECTION 8: CHALLENGES & FUTURE WORK
+% =========================================================================
+\section{Challenges and Future Improvements}
+
+\subsection{Challenges Encountered and Resolved}
+\begin{itemize}
+    \item \textbf{Solidity Compiler Stack-Too-Deep:} Rich clinical structs caused stack allocation depth errors during compilation. This was resolved by enabling the Yul intermediate representation pipeline (\texttt{viaIR: true}) and struct packing.
+    \item \textbf{Bytecode Ceiling Management:} Extensive role arrays and audit tracking initially exceeded the 24,576-byte EIP-170 limit ($26.9\text{ KB}$). Refactoring error strings and eliminating in-contract string encoding reduced bytecode to $21.4\text{ KB}$.
+    \item \textbf{Safe Emergency Access Protocol:} Balancing patient privacy with emergency availability required introducing a break-glass mechanism that permits access while generating a non-repudiable audit alert.
+\end{itemize}
+
+\subsection{Future Improvements}
+\begin{itemize}
+    \item \textbf{Layer-2 Rollup Migration:} Migrating transaction settlement to an Ethereum Layer-2 rollup (e.g., Arbitrum or Optimism) will reduce per-transaction fees by over $95\%$ while inheriting Layer-1 security.
+    \item \textbf{Zero-Knowledge Proofs (zk-SNARKs):} Integrating zero-knowledge proofs will allow patients to prove specific medical qualifications (e.g., vaccination verification, blood group compatibility) without disclosing full medical history.
+    \item \textbf{Decentralized Identity (W3C DID):} Adopting verifiable credentials for doctor licensing will eliminate reliance on a centralized administrator for credential verification.
+\end{itemize}
+
+% =========================================================================
+% SECTION 9: CONCLUSION
+% =========================================================================
+\section{Conclusion}
+This assignment successfully designed, implemented, and benchmarked \textbf{HealthChain}, a decentralized healthcare data management system addressing the critical shortcomings of traditional EHR infrastructures. By uniting Ethereum smart contracts, IPFS decentralized storage, and client-side AES-256-GCM encryption, the system establishes a secure, auditable, and patient-sovereign medical data ecosystem. The implementation fulfills all minimum functional requirements—including multi-role registration, encrypted upload, granular permission granting, immediate revocation, medical history timelines, emergency access, and administrative governance. Comprehensive empirical evaluations confirm that HealthChain achieves sub-second latency ($19.75\text{ ms}$ upload, $60.79\text{ ms}$ download), high cryptographic throughput ($212+\text{ MB/s}$), and a $99.98\%$ reduction in on-chain storage bloat, proving the feasibility of blockchain-powered healthcare data sharing.
+
+% =========================================================================
+% REFERENCES
+% =========================================================================
+\begin{thebibliography}{99}
+\bibitem{wood2014ethereum}
+G.~Wood, ``Ethereum: A secure decentralised generalised transaction ledger,'' \emph{Ethereum Project Yellow Paper}, vol.~151, no. 2014, pp. 1--32, 2014.
+
+\bibitem{benet2014ipfs}
+J.~Benet, ``IPFS - Content Addressed, Versioned, P2P File System,'' \emph{arXiv preprint arXiv:1407.3561}, 2014.
+
+\bibitem{dworkin2007sp800}
+M.~Dworkin, ``Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC,'' \emph{NIST Special Publication 800-38D}, 2007.
+
+\bibitem{zhang2018medrec}
+A.~Ekblaw, A.~Azaria, J.~D.~Halamka, and A.~Lippman, ``A Case Study for Blockchain in Healthcare: `MedRec' prototype for electronic health records and medical research data,'' in \emph{Proc. IEEE Open \& Big Data Conf.}, 2016.
+
+\bibitem{esposito2018blockchain}
+C.~Esposito, A.~De Santis, G.~Tortora, H.~Chang, and K.~K.~R.~Choo, ``Blockchain: A panacea for healthcare cloud-based data security and privacy?'' \emph{IEEE Cloud Computing}, vol.~5, no.~1, pp. 31--37, 2018.
+
+\bibitem{hipaa1996}
+U.S. Department of Health and Human Services, ``Health Insurance Portability and Accountability Act of 1996 (HIPAA) Security Standards for the Protection of Electronic Protected Health Information,'' \emph{45 CFR Part 160 and Part 164}, 2003.
+
+\bibitem{gdpr2016}
+European Parliament and Council of the European Union, ``Regulation (EU) 2016/679 (General Data Protection Regulation),'' \emph{Official Journal of the European Union}, 2016.
+\end{thebibliography}
+
+\end{document}
