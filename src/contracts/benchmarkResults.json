@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-29T10:40:47.817Z",
+  "timestamp": "2026-10-13T06:10:43.174Z",
   "network": "Hardhat Localhost (Chain ID: 31337)",
   "gasMetrics": {
     "deployment": {
@@ -8,126 +8,126 @@
       "gasPriceGwei": 1.875,
       "costEth": "0.00899913375",
       "costUsd": "22.50",
-      "latencyMs": 25.83
+      "latencyMs": 29.93
     },
     "registerPatient": {
       "gasUsed": 446531,
       "costEth": "0.000837245625",
       "costUsd": "2.0931",
-      "latencyMs": 11.61
+      "latencyMs": 9.42
     },
     "registerDoctor": {
       "gasUsed": 447396,
       "costEth": "0.0008388675",
       "costUsd": "2.0972",
-      "latencyMs": 11.02
+      "latencyMs": 5.6
     },
     "approveDoctor": {
       "gasUsed": 206223,
       "costEth": "0.000386668125",
       "costUsd": "0.9667",
-      "latencyMs": 6.08
+      "latencyMs": 10.87
     },
     "registerHospital": {
       "gasUsed": 447614,
       "costEth": "0.00083927625",
       "costUsd": "2.0982",
-      "latencyMs": 6.53
+      "latencyMs": 11.54
     },
     "approveHospital": {
       "gasUsed": 206654,
       "costEth": "0.00038747625",
       "costUsd": "0.9687",
-      "latencyMs": 5.9
+      "latencyMs": 6.1
     },
     "uploadRecord": {
       "gasUsed": 748408,
       "costEth": "0.001403265",
       "costUsd": "3.5082",
-      "latencyMs": 10.79
+      "latencyMs": 12.2
     },
     "grantRecordAccess": {
       "gasUsed": 291164,
       "costEth": "0.0005459325",
       "costUsd": "1.3648",
-      "latencyMs": 5.71
+      "latencyMs": 4.02
     },
     "accessRecord": {
       "gasUsed": 254344,
       "costEth": "0.000476895",
       "costUsd": "1.1922",
-      "latencyMs": 3.7
+      "latencyMs": 5.59
     },
     "revokeRecordAccess": {
       "gasUsed": 244954,
       "costEth": "0.00045928875",
       "costUsd": "1.1482",
-      "latencyMs": 4.27
+      "latencyMs": 5.15
     },
     "emergencyAccess": {
       "gasUsed": 266499,
       "costEth": "0.000499685625",
       "costUsd": "1.2492",
-      "latencyMs": 4.99
+      "latencyMs": 3.33
     }
   },
   "latencyMetrics": {
     "uploadLatency": {
-      "encryptionMs": 4.32,
-      "checksumMs": 5.06,
-      "blockchainTxMs": 10.79,
-      "totalUploadMs": 20.17
+      "encryptionMs": 3.52,
+      "checksumMs": 4.78,
+      "blockchainTxMs": 12.2,
+      "totalUploadMs": 20.5
     },
     "downloadLatency": {
       "permissionVerificationMs": 12.5,
       "ipfsRetrievalMs": 45,
-      "decryptionMs": 3.5,
-      "totalDownloadMs": 61
+      "decryptionMs": 3.27,
+      "totalDownloadMs": 60.77
     },
-    "permissionGrantLatencyMs": 5.71,
-    "permissionRevokeLatencyMs": 4.27
+    "permissionGrantLatencyMs": 4.02,
+    "permissionRevokeLatencyMs": 5.15
   },
   "cryptoMetrics": {
     "benchmarks": [
       {
         "sizeLabel": "100 KB",
         "sizeBytes": 102400,
-        "encryptionTimeMs": 0.7,
-        "decryptionTimeMs": 0.45,
-        "sha256TimeMs": 0.98,
-        "throughputMBs": 139.51
+        "encryptionTimeMs": 0.71,
+        "decryptionTimeMs": 0.38,
+        "sha256TimeMs": 1.31,
+        "throughputMBs": 137.54
       },
       {
         "sizeLabel": "500 KB",
         "sizeBytes": 512000,
-        "encryptionTimeMs": 1.84,
-        "decryptionTimeMs": 1.41,
-        "sha256TimeMs": 2.51,
-        "throughputMBs": 265.37
+        "encryptionTimeMs": 2.97,
+        "decryptionTimeMs": 2.21,
+        "sha256TimeMs": 2.52,
+        "throughputMBs": 164.4
       },
       {
         "sizeLabel": "1 MB",
         "sizeBytes": 1048576,
-        "encryptionTimeMs": 4.32,
-        "decryptionTimeMs": 3.5,
-        "sha256TimeMs": 5.06,
-        "throughputMBs": 231.48
+        "encryptionTimeMs": 3.52,
+        "decryptionTimeMs": 3.27,
+        "sha256TimeMs": 4.78,
+        "throughputMBs": 284.09
       },
       {
         "sizeLabel": "5 MB",
         "sizeBytes": 5242880,
-        "encryptionTimeMs": 19.81,
-        "decryptionTimeMs": 15.71,
-        "sha256TimeMs": 22.22,
-        "throughputMBs": 252.4
+        "encryptionTimeMs": 23.8,
+        "decryptionTimeMs": 14.53,
+        "sha256TimeMs": 26.66,
+        "throughputMBs": 210.08
       },
       {
         "sizeLabel": "10 MB",
         "sizeBytes": 10485760,
-        "encryptionTimeMs": 58.97,
-        "decryptionTimeMs": 32.66,
-        "sha256TimeMs": 49.98,
-        "throughputMBs": 169.58
+        "encryptionTimeMs": 44.29,
+        "decryptionTimeMs": 33.65,
+        "sha256TimeMs": 45.87,
+        "throughputMBs": 225.78
       }
     ]
   },
@@ -158,9 +158,9 @@
     ]
   },
   "resourceMetrics": {
-    "rssMb": 221.73,
+    "rssMb": 218.85,
     "heapUsedMb": 25.61,
-    "heapTotalMb": 61.1,
+    "heapTotalMb": 59.85,
     "cpuModel": "x86_64 Multi-Core Virtual Processor",
     "simulatedTps": 185.4
   }
